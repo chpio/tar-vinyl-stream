@@ -1,6 +1,6 @@
 {
   "name": "tar-vinyl",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "vinyl binding for tar-stream",
   "main": "tar-vinyl.js",
   "jsnext:main": "tar-vinyl.es2015.js",
