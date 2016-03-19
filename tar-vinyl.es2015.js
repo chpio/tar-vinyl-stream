@@ -27,8 +27,8 @@ export class Extract extends Readable {
 	}
 }
 
-export function extract() {
-	const tarExt = new TarExtract();
+export function extract(...args) {
+	const tarExt = new TarExtract(...args);
 	return duplexer({readableObjectMode: true}, tarExt, new Extract(tarExt));
 }
 
@@ -51,7 +51,7 @@ export class Pack extends Writable {
 	}
 }
 
-export function pack() {
-	const tarPak = new TarPack();
+export function pack(...args) {
+	const tarPak = new TarPack(...args);
 	return duplexer({writableObjectMode: true}, new Pack(tarPak), tarPak);
 }
