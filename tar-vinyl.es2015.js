@@ -42,12 +42,10 @@ export class Pack extends Writable {
 	}
 
 	_write(v, _, cb) {
-		const bufs = [];
-		v.contents.on('data', b => bufs.push(b));
-		v.contents.once('end', () => {
-			const header = Object.assign({}, v.tarHeader || {}, {name: v.path});
-			this._tarPak.entry(header, Buffer.concat(bufs), cb);
-		});
+		const header = Object.assign({}, v.tarHeader || {}, {name: v.path});
+		v.contents
+			.pipe(this._tarPak.entry(header))
+			.once('end', cb);
 	}
 }
 
