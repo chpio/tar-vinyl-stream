@@ -4,19 +4,20 @@ import {Readable, Writable} from 'readable-stream';
 import Vinyl from 'vinyl';
 
 export class Extract extends Readable {
-	constructor(tarExt) {
+	constructor(tarExt, options = {}) {
 		super({objectMode: true});
 
 		tarExt.on('entry', (header, contents, next) => {
-			const v = new Vinyl({
-				path: header.name,
-				contents,
-			});
-
-			v.tarHeader = header;
-
-			if (this.push(v)) next();
-			else this.once('drain', next);
+			if (options.buffer === true) {
+				const bufs = [];
+				contents
+					.on('data', b => bufs.push(b))
+					.once('end', () => {
+						this._processItem(header, Buffer.concat(bufs), next);
+					});
+			} else {
+				this._processItem(header, contents, next);
+			}
 		});
 
 		tarExt.once('finish', () => this.push(null));
@@ -25,15 +26,27 @@ export class Extract extends Readable {
 	_read() {
 		// noop
 	}
+
+	_processItem(header, contents, next) {
+		const v = new Vinyl({
+			path: header.name,
+			contents,
+		});
+
+		v.tarHeader = header;
+
+		if (this.push(v)) next();
+		else this.once('drain', next);
+	}
 }
 
-export function extract(...args) {
-	const tarExt = new TarExtract(...args);
-	return duplexer({readableObjectMode: true}, tarExt, new Extract(tarExt));
+export function extract(options) {
+	const tarExt = new TarExtract(options);
+	return duplexer({readableObjectMode: true}, tarExt, new Extract(tarExt, options));
 }
 
 export class Pack extends Writable {
-	constructor(tarPak) {
+	constructor(tarPak, options) {
 		super({objectMode: true});
 
 		this._tarPak = tarPak;
@@ -50,7 +63,7 @@ export class Pack extends Writable {
 	}
 }
 
-export function pack(...args) {
-	const tarPak = new TarPack(...args);
-	return duplexer({writableObjectMode: true}, new Pack(tarPak), tarPak);
+export function pack(options) {
+	const tarPak = new TarPack(options);
+	return duplexer({writableObjectMode: true}, new Pack(tarPak, options), tarPak);
 }
