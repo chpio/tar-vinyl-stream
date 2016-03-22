@@ -8,7 +8,7 @@ export class Extract extends Readable {
 		super({objectMode: true});
 
 		tarExt.on('entry', (header, contents, next) => {
-			if (options.buffer === true) {
+			if (options.buffer) {
 				const bufs = [];
 				contents
 					.on('data', b => bufs.push(b))
@@ -46,7 +46,7 @@ export function extract(options) {
 }
 
 export class Pack extends Writable {
-	constructor(tarPak, options) {
+	constructor(tarPak) {
 		super({objectMode: true});
 
 		this._tarPak = tarPak;
