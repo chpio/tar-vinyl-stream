@@ -55,7 +55,7 @@ export class Pack extends Writable {
 	}
 
 	_write(v, _, cb) {
-		const header = Object.assign({}, v.tarHeader || {}, {name: v.path});
+		const header = Object.assign({}, v.tarHeader || {}, {name: v.relative});
 
 		if (v.isBuffer()) this._tarPak.entry(header, v.contents, cb);
 		else if (v.isStream()) v.contents.pipe(this._tarPak.entry(header)).once('end', cb);
