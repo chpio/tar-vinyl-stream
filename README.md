@@ -43,7 +43,7 @@ import debug from 'gulp-debug';
 import filter from 'through2-filter';
 
 fs.createReadStream('./my-files.tar')
-	.pipe(extract())
+	.pipe(extract({buffer: true}))
 	.pipe(debug())
 	// allow only files
 	.pipe(filter.obj(f => f.tarHeader.type === 'file'))
@@ -51,3 +51,6 @@ fs.createReadStream('./my-files.tar')
 	.pipe(gulp.dest('./dest'));
 
 ```
+
+### Extract options
+* *buffer*: returns the tar content as buffer (default is *false* for streamed content)
