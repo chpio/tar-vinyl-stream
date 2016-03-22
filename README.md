@@ -1,13 +1,13 @@
-# tar-vinyl
+# tar-vinyl-stream
 
-*tar-vinyl* exposes two streams, *pack* and *extract*.
+*tar-vinyl-stream* exposes two streams, *pack* and *extract*.
 
 
 ## Pack
 The *pack* stream consumes a stream of *vinyl* objects and generates a tar file stream.
 
 ```javascript
-import {pack} from 'tar-vinyl';
+import {pack} from 'tar-vinyl-stream';
 import * as fs from 'fs';
 import gulp from 'gulp';
 import debug from 'gulp-debug';
@@ -22,7 +22,7 @@ gulp.src('./src/*.js')
 The *extract* stream consumes a tar stream and emits *vinyl* objects for each containing file.
 
 ```javascript
-import {extract} from 'tar-vinyl';
+import {extract} from 'tar-vinyl-stream';
 import * as fs from 'fs';
 import gulp from 'gulp';
 import debug from 'gulp-debug';
@@ -36,7 +36,7 @@ fs.createReadStream('./my-files.tar')
 
 *extract* also exposes the [tar header](https://www.npmjs.com/package/tar-stream#headers). You can use it for any purpose, eg filtering the files:
 ```javascript
-import {extract} from 'tar-vinyl';
+import {extract} from 'tar-vinyl-stream';
 import * as fs from 'fs';
 import gulp from 'gulp';
 import debug from 'gulp-debug';

@@ -1,22 +1,22 @@
 {
-  "name": "tar-vinyl",
+  "name": "tar-vinyl-stream",
   "version": "1.0.0",
   "description": "vinyl binding for tar-stream",
-  "main": "tar-vinyl.js",
-  "jsnext:main": "tar-vinyl.es2015.js",
+  "main": "tar-vinyl-stream.js",
+  "jsnext:main": "tar-vinyl-stream.es2015.js",
   "scripts": {
-    "build": "babel tar-vinyl.es2015.js > tar-vinyl.js"
+    "build": "babel tar-vinyl-stream.es2015.js > tar-vinyl-stream.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/chpio/tar-vinyl.git"
+    "url": "git+https://github.com/chpio/tar-vinyl-stream.git"
   },
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/chpio/tar-vinyl/issues"
+    "url": "https://github.com/chpio/tar-vinyl-stream/issues"
   },
-  "homepage": "https://github.com/chpio/tar-vinyl#readme",
+  "homepage": "https://github.com/chpio/tar-vinyl-stream#readme",
   "devDependencies": {
     "babel-cli": "^6.6.5",
     "babel-plugin-transform-runtime": "^6.6.0",
