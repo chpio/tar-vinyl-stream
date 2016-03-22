@@ -45,8 +45,8 @@ import filter from 'through2-filter';
 fs.createReadStream('./my-files.tar')
 	.pipe(extract())
 	.pipe(debug())
-	// allow only files & directories
-	.pipe(filter.obj(f => ['file', 'directory'].indexOf(f.tarHeader.type) !== -1))
+	// allow only files
+	.pipe(filter.obj(f => f.tarHeader.type === 'file'))
 	.pipe(debug())
 	.pipe(gulp.dest('./dest'));
 
