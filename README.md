@@ -53,4 +53,4 @@ fs.createReadStream('./my-files.tar')
 ```
 
 ### Extract options
-* *buffer*: returns the tar content as buffer (default is *false* for streamed content)
+* *buffer*: returns the files content as buffer (default is *false* for streamed content)
