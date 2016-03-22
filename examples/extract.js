@@ -1,4 +1,4 @@
-const extract = require('../tar-vinyl').extract;
+const extract = require('../tar-vinyl-stream').extract;
 const fs = require('fs');
 const gulp = require('gulp');
 const filter = require('through2-filter');

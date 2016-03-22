@@ -1,5 +1,5 @@
-const extract = require('../tar-vinyl').extract;
-const pack = require('../tar-vinyl').pack;
+const extract = require('../tar-vinyl-stream').extract;
+const pack = require('../tar-vinyl-stream').pack;
 const fs = require('fs');
 const debug = require('gulp-debug');
 
