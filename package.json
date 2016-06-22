@@ -5,7 +5,7 @@
   "main": "tar-vinyl-stream.js",
   "jsnext:main": "tar-vinyl-stream.es2015.js",
   "scripts": {
-    "build": "babel tar-vinyl-stream.es2015.js > tar-vinyl-stream.js"
+    "prepublish": "babel tar-vinyl-stream.es2015.js > tar-vinyl-stream.js"
   },
   "repository": {
     "type": "git",
