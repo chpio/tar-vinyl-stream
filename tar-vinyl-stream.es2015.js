@@ -16,7 +16,7 @@ export class Extract extends Readable {
 				.once('end', () => {
 					const v = new Vinyl({
 						path: header.name,
-						contents,
+						contents: Buffer.concat(bufs),
 					});
 
 					v.tarHeader = header;
