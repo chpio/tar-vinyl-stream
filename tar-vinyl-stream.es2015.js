@@ -4,20 +4,26 @@ import {Readable, Writable} from 'readable-stream';
 import Vinyl from 'vinyl';
 
 export class Extract extends Readable {
-	constructor(tarExt, options = {}) {
+	constructor(tarExt) {
 		super({objectMode: true});
 
+		// streaming is not supported by tar-stream
+		// https://github.com/mafintosh/tar-stream/issues/50
 		tarExt.on('entry', (header, contents, next) => {
-			if (options.buffer) {
-				const bufs = [];
-				contents
-					.on('data', b => bufs.push(b))
-					.once('end', () => {
-						this._processItem(header, Buffer.concat(bufs), next);
+			const bufs = [];
+			contents
+				.on('data', b => bufs.push(b))
+				.once('end', () => {
+					const v = new Vinyl({
+						path: header.name,
+						contents,
 					});
-			} else {
-				this._processItem(header, contents, next);
-			}
+
+					v.tarHeader = header;
+
+					if (this.push(v)) next();
+					else this.once('drain', next);
+				});
 		});
 
 		tarExt.once('finish', () => this.push(null));
@@ -26,23 +32,11 @@ export class Extract extends Readable {
 	_read() {
 		// noop
 	}
-
-	_processItem(header, contents, next) {
-		const v = new Vinyl({
-			path: header.name,
-			contents,
-		});
-
-		v.tarHeader = header;
-
-		if (this.push(v)) next();
-		else this.once('drain', next);
-	}
 }
 
-export function extract(options) {
-	const tarExt = new TarExtract(options);
-	return duplexer({readableObjectMode: true}, tarExt, new Extract(tarExt, options));
+export function extract() {
+	const tarExt = new TarExtract();
+	return duplexer({readableObjectMode: true}, tarExt, new Extract(tarExt));
 }
 
 export class Pack extends Writable {
@@ -63,7 +57,7 @@ export class Pack extends Writable {
 	}
 }
 
-export function pack(options) {
-	const tarPak = new TarPack(options);
-	return duplexer({writableObjectMode: true}, new Pack(tarPak, options), tarPak);
+export function pack() {
+	const tarPak = new TarPack();
+	return duplexer({writableObjectMode: true}, new Pack(tarPak), tarPak);
 }
