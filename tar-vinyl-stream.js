@@ -1,4 +1,4 @@
-const duplexer = require('duplexer2');
+const Duplexify = require('duplexify');
 const TarExtract = require('tar-stream/extract');
 const TarPack = require('tar-stream/pack');
 const {Readable, Writable} = require('readable-stream');
@@ -37,7 +37,10 @@ class Extract extends Readable {
 
 function extract() {
 	const tarExt = new TarExtract();
-	return duplexer({readableObjectMode: true}, tarExt, new Extract(tarExt));
+
+	return new Duplexify(tarExt, new Extract(tarExt), {
+		readableObjectMode: true
+	});
 }
 
 class Pack extends Writable {
@@ -60,7 +63,10 @@ class Pack extends Writable {
 
 function pack() {
 	const tarPak = new TarPack();
-	return duplexer({writableObjectMode: true}, new Pack(tarPak), tarPak);
+
+	return new Duplexify(new Pack(tarPak), tarPak, {
+		writableObjectMode: true
+	});
 }
 
 exports.Extract = Extract;
