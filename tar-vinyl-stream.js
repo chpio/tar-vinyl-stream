@@ -1,9 +1,10 @@
-import duplexer from 'duplexer2';
-import {extract as TarExtract, pack as TarPack} from 'tar-stream';
-import {Readable, Writable} from 'readable-stream';
-import Vinyl from 'vinyl';
+const duplexer = require('duplexer2');
+const TarExtract = require('tar-stream/extract');
+const TarPack = require('tar-stream/pack');
+const {Readable, Writable} = require('readable-stream');
+const Vinyl = require('vinyl');
 
-export class Extract extends Readable {
+class Extract extends Readable {
 	constructor(tarExt) {
 		super({objectMode: true});
 
@@ -34,12 +35,12 @@ export class Extract extends Readable {
 	}
 }
 
-export function extract() {
+function extract() {
 	const tarExt = new TarExtract();
 	return duplexer({readableObjectMode: true}, tarExt, new Extract(tarExt));
 }
 
-export class Pack extends Writable {
+class Pack extends Writable {
 	constructor(tarPak) {
 		super({objectMode: true});
 
@@ -57,7 +58,12 @@ export class Pack extends Writable {
 	}
 }
 
-export function pack() {
+function pack() {
 	const tarPak = new TarPack();
 	return duplexer({writableObjectMode: true}, new Pack(tarPak), tarPak);
 }
+
+exports.Extract = Extract;
+exports.extract = extract;
+exports.Pack = Pack;
+exports.pack = pack;
