@@ -5,25 +5,25 @@ const {Readable, Writable} = require('readable-stream');
 const Vinyl = require('vinyl');
 
 class Extract extends Readable {
-	constructor(tarExt) {
+	constructor(tarExtract) {
 		super({objectMode: true});
 
 		// streaming is not supported by tar-stream
 		// https://github.com/mafintosh/tar-stream/issues/50
-		tarExt.on('entry', (header, contents, next) => {
+		tarExtract.on('entry', (header, contents, next) => {
 			const bufs = [];
 
 			contents
 				.on('data', b => bufs.push(b))
 				.once('end', () => {
-					const v = new Vinyl({
+					const file = new Vinyl({
 						path: header.name,
 						contents: Buffer.concat(bufs),
 					});
 
-					v.tarHeader = header;
+					file.tarHeader = header;
 
-					if (this.push(v)) {
+					if (this.push(file)) {
 						next();
 					} else {
 						this.once('drain', next);
@@ -31,7 +31,7 @@ class Extract extends Readable {
 				});
 		});
 
-		tarExt.once('finish', () => this.push(null));
+		tarExtract.once('finish', () => this.push(null));
 	}
 
 	_read() {
@@ -40,39 +40,39 @@ class Extract extends Readable {
 }
 
 function extract() {
-	const tarExt = new TarExtract();
+	const tarExtract = new TarExtract();
 
-	return new Duplexify(tarExt, new Extract(tarExt), {
+	return new Duplexify(tarExtract, new Extract(tarExtract), {
 		readableObjectMode: true
 	});
 }
 
 class Pack extends Writable {
-	constructor(tarPak) {
+	constructor(tarPack) {
 		super({objectMode: true});
 
-		this._tarPak = tarPak;
+		this._tarPak = tarPack;
 
 		this.once('finish', () => this._tarPak.finalize());
 	}
 
-	_write(v, _, cb) {
-		const header = Object.assign({}, v.tarHeader || {}, {name: v.relative});
+	_write(file, _, next) {
+		const header = Object.assign({}, file.tarHeader || {}, {name: file.relative});
 
-		if (v.isBuffer()) {
-			this._tarPak.entry(header, v.contents, cb);
-		} else if (v.isStream()) {
-			v.contents.pipe(this._tarPak.entry(header)).once('end', cb);
+		if (file.isBuffer()) {
+			this._tarPak.entry(header, file.contents, next);
+		} else if (file.isStream()) {
+			file.contents.pipe(this._tarPak.entry(header)).once('end', next);
 		} else {
-			cb(new TypeError(`${v} is not a buffer or stream`));
+			next(new TypeError(`${file} is not a buffer or stream`));
 		}
 	}
 }
 
 function pack() {
-	const tarPak = new TarPack();
+	const tarPack = new TarPack();
 
-	return new Duplexify(new Pack(tarPak), tarPak, {
+	return new Duplexify(new Pack(tarPack), tarPack, {
 		writableObjectMode: true
 	});
 }
