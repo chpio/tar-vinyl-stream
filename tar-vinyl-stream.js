@@ -12,6 +12,7 @@ class Extract extends Readable {
 		// https://github.com/mafintosh/tar-stream/issues/50
 		tarExt.on('entry', (header, contents, next) => {
 			const bufs = [];
+
 			contents
 				.on('data', b => bufs.push(b))
 				.once('end', () => {
@@ -22,8 +23,11 @@ class Extract extends Readable {
 
 					v.tarHeader = header;
 
-					if (this.push(v)) next();
-					else this.once('drain', next);
+					if (this.push(v)) {
+						next();
+					} else {
+						this.once('drain', next);
+					}
 				});
 		});
 
@@ -55,9 +59,13 @@ class Pack extends Writable {
 	_write(v, _, cb) {
 		const header = Object.assign({}, v.tarHeader || {}, {name: v.relative});
 
-		if (v.isBuffer()) this._tarPak.entry(header, v.contents, cb);
-		else if (v.isStream()) v.contents.pipe(this._tarPak.entry(header)).once('end', cb);
-		else cb(new TypeError(`${v} is not a buffer or stream`));
+		if (v.isBuffer()) {
+			this._tarPak.entry(header, v.contents, cb);
+		} else if (v.isStream()) {
+			v.contents.pipe(this._tarPak.entry(header)).once('end', cb);
+		} else {
+			cb(new TypeError(`${v} is not a buffer or stream`));
+		}
 	}
 }
 
