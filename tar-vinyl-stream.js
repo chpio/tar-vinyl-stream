@@ -97,13 +97,13 @@ class Pack extends Writable {
 		this._umask = options.umask || process.umask();
 		this._fileMode = options.fmode || 0o666;
 		this._dirMode = options.dmode || 0o777;
-		this._uid = options.uid || process.uid();
-		this._gid = options.gid || process.gid();
+		this._uid = options.uid || process.getuid();
+		this._gid = options.gid || process.getgid();
 		this._mtime = options.mtime || new Date();
 	}
 
 	_write(file, _, next) {
-		const {stat} = file;
+		const stat = file.stat || {};
 		const header = {
 			name: file.relative,
 			type: 'file',
