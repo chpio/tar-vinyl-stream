@@ -19,6 +19,7 @@
   "devDependencies": {
     "ava": "*",
     "get-stream": "^4.1.0",
+    "vinyl-fs": "^3.0.3",
     "xo": "*"
   },
   "dependencies": {
