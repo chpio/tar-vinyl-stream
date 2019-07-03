@@ -118,7 +118,7 @@ class Pack extends Writable {
 			}
 
 			if (!header.mode) {
-				header.mode = this._fileMode ^ this._umask;
+				header.mode = this._fileMode & (~this._umask);
 			}
 
 			header.size = buffer ? buffer.length : 0;
@@ -141,7 +141,7 @@ class Pack extends Writable {
 			header.type = 'directory';
 
 			if (!header.mode) {
-				header.mode = this._dirMode ^ this._umask;
+				header.mode = this._dirMode & (~this._umask);
 			}
 
 			this._tarpack(header, next);
