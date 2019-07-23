@@ -144,7 +144,7 @@ class Pack extends Writable {
 				header.mode = this._dirMode & (~this._umask);
 			}
 
-			this._tarpack(header, next);
+			this._tarPack.entry(header, next);
 		} else {
 			next(createTypeError('pack', header));
 		}
