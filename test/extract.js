@@ -7,16 +7,15 @@ import {pipeline} from 'readable-stream';
 import test from 'ava';
 
 const fixtures = path.join(__dirname, 'fixtures');
-const pump = util.promisify(pipeline);
 const readFile = util.promisify(fs.readFile);
 
 test('extract', async t => {
 	const src = fs.createReadStream(path.join(fixtures, 'tarballs', 'files-bare.tar'));
-	const e = extract();
+	const dest = extract();
 
-	await pump(src, e);
+	pipeline(src, dest, err => err && t.fail(err));
 
-	const files = await getStream.array(e);
+	const files = await getStream.array(dest);
 	const contents = await Promise.all(files.map(file => readFile(path.join(fixtures, 'files', file.basename))));
 
 	for (let i = 0; i < files.length; i++) {
