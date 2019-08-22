@@ -140,6 +140,10 @@ class Pack extends Writable {
 			header.size = 0;
 			header.type = 'directory';
 
+			if (file.base === file.path) {
+				header.name = '.';
+			}
+
 			if (!header.mode) {
 				header.mode = this._dirMode & (~this._umask);
 			}
