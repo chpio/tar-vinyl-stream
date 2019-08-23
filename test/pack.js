@@ -1,8 +1,7 @@
-import fs from 'fs';
 import path from 'path';
 import getStream from 'get-stream';
 import {pack} from '..';
-import {pipeline} from 'readable-stream';
+import {Transform, pipeline} from 'readable-stream';
 import tarFs from 'tar-fs';
 import test from 'ava';
 import vfs from 'vinyl-fs';
@@ -17,7 +16,12 @@ test('files', async t => {
 	pipeline(src, dest, err => err && t.fail(err));
 
 	const contents = await getStream.buffer(dest);
-	const correct = await getStream.buffer(tarFs.pack(cwd));
+	const correct = await getStream.buffer(tarFs.pack(cwd, {
+		umask: 0,
+		ignore(name) {
+			return /[ab]1.txt$/.test(name);
+		}
+	}));
 
 	for (const {chunk, value} of compareTarballChunks(correct, contents)) {
 		t.true(value, chunk.toString());
@@ -32,7 +36,7 @@ test('large', async t => {
 	pipeline(src, dest, err => err && t.fail(err));
 
 	const contents = await getStream.buffer(dest);
-	const correct = await getStream.buffer(tarFs.pack(cwd));
+	const correct = await getStream.buffer(tarFs.pack(cwd, {umask: 0}));
 
 	for (const {chunk, value} of compareTarballChunks(correct, contents)) {
 		t.true(value, chunk.toString());
@@ -48,9 +52,6 @@ test('mixed', async t => {
 
 	const contents = await getStream.buffer(dest);
 	const correct = await getStream.buffer(tarFs.pack(cwd, {umask: 0}));
-
-	fs.writeFile('/tmp/vinyl.tar', contents, err => err && t.fail(err));
-	fs.writeFile('/tmp/fs.tar', correct, err => err && t.fail(err));
 
 	for (const {chunk, value} of compareTarballChunks(correct, contents)) {
 		t.true(value, chunk.toString());
@@ -78,6 +79,38 @@ test('symlinks', async t => {
 	const dest = pack({cwd});
 
 	pipeline(src, dest, err => err && t.fail(err));
+
+	const contents = await getStream.buffer(dest);
+	const correct = await getStream.buffer(tarFs.pack(cwd, {umask: 0}));
+
+	for (const {chunk, value} of compareTarballChunks(correct, contents)) {
+		t.true(value, chunk.toString());
+	}
+});
+
+test('files (stream)', async t => {
+	const cwd = path.join(fixtures, 'files');
+	const src = vfs.src('{a,b}.txt', {cwd, buffer: false});
+	const clone = new Transform({
+		objectMode: true,
+		transform(file, enc, next) {
+			const copy = file.clone();
+
+			copy.basename = file.stem + '1.txt';
+
+			t.true(file.isStream(), 'expected file to be a stream');
+			t.true(/[ab]1.txt$/.test(copy.path), 'copy filename is wrong');
+
+			// Important: the virtual file, "copy", must have the same mtime as the real file
+			// to achive this, ensure that "a.txt" & "a1.txt" have exactly the same mtime on disk
+			this.push(file.clone());
+			this.push(copy);
+			next(null);
+		}
+	});
+	const dest = pack({cwd});
+
+	pipeline(src, clone, dest, err => err && t.fail(err));
 
 	const contents = await getStream.buffer(dest);
 	const correct = await getStream.buffer(tarFs.pack(cwd, {umask: 0}));
