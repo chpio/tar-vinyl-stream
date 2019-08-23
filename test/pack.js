@@ -19,7 +19,7 @@ test('files', async t => {
 	const correct = await getStream.buffer(tarFs.pack(cwd, {
 		umask: 0,
 		ignore(name) {
-			return /[ab]1.txt$/.test(name);
+			return /[ab]1\.txt$/.test(name);
 		}
 	}));
 
@@ -99,7 +99,7 @@ test('files (stream)', async t => {
 			copy.basename = file.stem + '1.txt';
 
 			t.true(file.isStream(), 'expected file to be a stream');
-			t.true(/[ab]1.txt$/.test(copy.path), 'copy filename is wrong');
+			t.true(/[ab]1\.txt$/.test(copy.path), 'copy filename is wrong');
 
 			// Important: the virtual file, "copy", must have the same mtime as the real file
 			// to achive this, ensure that "a.txt" & "a1.txt" have exactly the same mtime on disk
