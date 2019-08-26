@@ -26,7 +26,6 @@
   "dependencies": {
     "bl": "^2.1.2",
     "duplexify": "^3.6.1",
-    "lead": "^1.0.0",
     "readable-stream": "^3.4.0",
     "stat-mode": "^0.2.2",
     "stats-ctor": "^1.1.0",

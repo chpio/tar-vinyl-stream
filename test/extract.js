@@ -3,7 +3,8 @@ import path from 'path';
 import util from 'util';
 import {extract} from '..';
 import getStream from 'get-stream';
-import {pipeline} from 'readable-stream';
+import {Transform, pipeline} from 'readable-stream';
+import vfs from 'vinyl-fs';
 import test from 'ava';
 
 const fixtures = path.join(__dirname, 'fixtures');
@@ -151,5 +152,64 @@ test('symlinks', async t => {
 		const symlink = symlinks[i];
 
 		t.is(file.isSymbolic() ? file.symlink : null, symlink);
+	}
+});
+
+test('stream', async t => {
+	const src = fs.createReadStream(path.join(fixtures, 'tarballs', 'stream.tar'));
+	const stream = extract({buffer: false});
+	const modify = new Transform({
+		objectMode: true,
+		transform(file, enc, next) {
+			if (/[ab]\.txt$/.test(file.path)) {
+				next(null, file);
+			} else {
+				next(null);
+			}
+		}
+	});
+	const dest = vfs.dest('/tmp/debug');
+
+	pipeline(src, stream, modify, dest, err => err && t.fail(err));
+
+	const files = await getStream.array(dest);
+
+	t.is(files.length, 2, 'wrong number of files extracted');
+
+	for (const file of files) {
+		t.false(file.isBuffer(), 'file is a buffer');
+	}
+});
+
+test('multi-chunk', async t => {
+	const src = fs.createReadStream(path.join(fixtures, 'tarballs', 'multi-chunk.tar'));
+	const stream = extract({buffer: false});
+	const modify = new Transform({
+		objectMode: true,
+		transform(file, enc, next) {
+			const n = parseInt(file.stem, 10);
+
+			// Invalidate the size, vfs.dest is expected to set this value
+			file.stat.size = 0;
+
+			if (n % 2 === 0) {
+				next(null, file);
+			} else {
+				next(null);
+			}
+		}
+	});
+	const dest = vfs.dest('/tmp/debug');
+
+	pipeline(src, stream, modify, dest, err => err && t.fail(err));
+
+	const files = await getStream.array(dest);
+
+	t.is(files.length, 2, 'wrong number of files extracted');
+
+	for (const file of files) {
+		t.true(file.isStream(), 'file is a buffer');
+		// eslint-disable-next-line eqeqeq
+		t.true(file.stat.size == file.stem, 'file size is set');
 	}
 });

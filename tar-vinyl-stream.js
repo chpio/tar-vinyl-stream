@@ -2,11 +2,10 @@ const path = require('path');
 const BufferList = require('bl');
 const Duplexify = require('duplexify');
 const Mode = require('stat-mode');
-const sink = require('lead');
 const Stats = require('stats-ctor');
 const TarExtract = require('tar-stream/extract');
 const TarPack = require('tar-stream/pack');
-const {PassThrough, Readable, Writable} = require('readable-stream');
+const {Readable, Writable} = require('readable-stream');
 const Vinyl = require('vinyl');
 
 class Extract extends Readable {
@@ -48,13 +47,8 @@ class Extract extends Readable {
 					if (buffer) {
 						stream.pipe(new BufferList(next));
 					} else {
-						// This may be the stream's final destination, for example gulp-filter dropping it
-						const contents = sink(new PassThrough());
-
-						stream
-							.once('error', next)
-							.once('end', () => next(null, contents))
-							.pipe(contents);
+						// May fail but tests are not proving this is the case
+						next(null, stream);
 					}
 
 					break;
