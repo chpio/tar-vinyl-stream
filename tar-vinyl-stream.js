@@ -77,7 +77,8 @@ function extract(options) {
 	const tarExtract = new TarExtract();
 
 	return new Duplexify(tarExtract, new Extract(tarExtract, options), {
-		readableObjectMode: true
+		readableObjectMode: true,
+		readableHighWaterMark: 16
 	});
 }
 
@@ -158,7 +159,8 @@ function pack(options) {
 	const tarPack = new TarPack();
 
 	return new Duplexify(new Pack(tarPack, options), tarPack, {
-		writableObjectMode: true
+		writableObjectMode: true,
+		writableHighWaterMark: 16
 	});
 }
 
