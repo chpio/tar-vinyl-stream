@@ -1,11 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 import util from 'util';
-import {extract} from '..';
 import getStream from 'get-stream';
 import {Transform, pipeline} from 'readable-stream';
 import vfs from 'vinyl-fs';
 import test from 'ava';
+import {extract} from '..';
 
 const fixtures = path.join(__dirname, 'fixtures');
 const readFile = util.promisify(fs.readFile);

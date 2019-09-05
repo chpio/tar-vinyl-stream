@@ -1,10 +1,10 @@
 import path from 'path';
 import getStream from 'get-stream';
-import {pack} from '..';
 import {Transform, pipeline} from 'readable-stream';
 import tarFs from 'tar-fs';
 import test from 'ava';
 import vfs from 'vinyl-fs';
+import {pack} from '..';
 
 const fixtures = path.join(__dirname, 'fixtures');
 
